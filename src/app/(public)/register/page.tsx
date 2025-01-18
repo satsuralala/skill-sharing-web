@@ -22,8 +22,8 @@ const Register=()=> {
 
   const [register,{loading}] = useMutation(REGISTER, {
     onCompleted:async(data)=>{
-      localStorage.setItem('token',data);
-      window.location.href = '/register/signIn'
+      localStorage.setItem('token',data.token);
+      window.location.href = '/signIn'
     },
     variables: {
       name:name,
@@ -41,23 +41,23 @@ const Register=()=> {
     <div className="text-[#09090B] font-semibold text-2xl pt-6 ">Create an account</div>
     <div className="text-[#71717A] text-sm font-normal pt-1 ">Enter your email, name and password below to create your account</div>
     <div className="pt-6">
-      <div className='flex flex-col gap-2'>
-      <div className="text-[#09090B] font-medium text-sm pb-2">Name</div>
+      <div className='flex flex-col gap-1'>
+      <div className="text-[#09090B] font-medium text-sm pb-1">Name</div>
       <Input data-cy="register-email-input" placeholder="Naraa" className="w-[350px] border-[#E4E4E7] border-2 text-black bg-white" value={name} onChange={(e) => setName(e.target.value)} />
-      <div className="text-[#09090B] font-medium text-sm pb-2">Email</div>
+      <div className="text-[#09090B] font-medium text-sm pb-1">Email</div>
       <Input data-cy="register-email-input" placeholder="naraa@example.com" className="w-[350px] border-[#E4E4E7] text-black border-2 bg-white" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <div className="text-[#09090B] font-medium text-sm pb-2">Password</div>
+      <div className="text-[#09090B] font-medium text-sm pb-1">Password</div>
       <Input data-cy="register-email-input" placeholder="Naraa1213" className="w-[350px] border-[#E4E4E7] border-2 text-black bg-white" value={password} onChange={(e) => setPassword(e.target.value)} />
 
       </div>
-      <button data-cy="register-continue-button" className="w-[350px] h-9 bg-black rounded-full text-[#FAFAFA] text-sm font-medium mt-4" onClick={() => register()} disabled={loading}>
-        {loading ? <Image src="/sw.svg" alt="loading" width={20} height={20} className="animate-spin" /> : 'Continue'}
+      <button data-cy="register-continue-button" className="w-[350px] h-9 bg-black  hover:bg-slate-700 rounded-full text-[#FAFAFA] text-sm font-medium mt-4" onClick={() => register()} disabled={loading}>
+        {loading ? <Image src="/spinner.svg" alt="loading" width={20} height={20} className="animate-spin" /> : 'Continue'}
       </button>
       <div className="flex">
       
       </div>
       <Link href="/signIn">
-        <button data-cy="signIn" className="w-[350px] h-9 bg-white border-[#E4E4E7] rounded-full text-[#18181B] hover:bg-white border-2 text-sm font-medium mt-4">
+        <button data-cy="signIn" className="w-[350px] h-9 bg-white  border-[#E4E4E7] rounded-full text-[#18181B] hover:bg-white border-2 text-sm font-medium mt-4">
           Log in
         </button>
       </Link>
