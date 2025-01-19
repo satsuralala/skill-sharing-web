@@ -1,8 +1,7 @@
-'use client'
+"use client";
 import React, { useState } from "react";
 
 import Editor from "@/components/editor";
-
 
 // Initial Data
 const INITIAL_DATA = {

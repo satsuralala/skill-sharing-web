@@ -13,25 +13,39 @@ const EDITOR_JS_TOOLS = {
     class: Paragraph,
     inlineToolbar: true,
   },
-  checkList: CheckList,
-  list: List,
-  header: Header,
+  checkList: {
+    class: CheckList,
+    inlineToolbar: true,
+  },
+  list: {
+    class: List,
+    inlineToolbar: true,
+  },
+  header: {
+    class: Header,
+    inlineToolbar: true,
+  },
   delimiter: Delimiter,
-  link: Link,
+  link: {
+    class: Link,
+    config: {
+      placeholder: "Enter a link",
+    },
+  },
   image: {
     class: ImageTool,
     config: {
       uploader: {
         uploadByFile(file: File) {
           return new Promise((resolve, reject) => {
-            // Simulate file upload (You can integrate a real API here)
             const formData = new FormData();
             formData.append("file", file);
+            // Simulate the file upload (replace with actual API)
             setTimeout(() => {
               resolve({
                 success: 1,
                 file: {
-                  url: "https://via.placeholder.com/150",
+                  url: "https://res.cloudinary.com/dwf0svulc/image/upload/v1737282736/lik1c0hcyqmiurprniiz.jpg",
                 },
               });
             }, 1000);
@@ -46,6 +60,7 @@ const EditorComponent = memo(() => {
   const editorInstance = useRef<EditorJS | null>(null);
 
   useEffect(() => {
+    // Initialize EditorJS only once when the component is mounted
     editorInstance.current = new EditorJS({
       holder: "editorjs",
       tools: EDITOR_JS_TOOLS,
@@ -54,6 +69,7 @@ const EditorComponent = memo(() => {
       },
     });
 
+    // Cleanup editor instance when component unmounts
     return () => {
       if (editorInstance.current) {
         editorInstance.current.destroy();
@@ -62,7 +78,16 @@ const EditorComponent = memo(() => {
     };
   }, []);
 
-  return <div id="editorjs" style={{ border: "1px solid #ccc", padding: "10px" }} />;
+  return (
+    <div
+      id="editorjs"
+      style={{
+        border: "1px solid #ccc",
+        padding: "10px",
+        minHeight: "300px",
+      }}
+    />
+  );
 });
 
 export default EditorComponent;

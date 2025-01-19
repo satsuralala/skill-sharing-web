@@ -8,6 +8,9 @@ import Link from "@editorjs/link";
 import Delimiter from "@editorjs/delimiter";
 import CheckList from "@editorjs/checklist";
 
+const CLOUDINARYNAME = process.env.NEXT_PUBLIC_CLOUDINARYNAME;
+const CLOUDINARYPRESET = process.env.NEXT_PUBLIC_CLOUDINARYPRESET || "";
+
 const EDITOR_JS_TOOLS = {
   paragraph: {
     class: Paragraph,
@@ -40,27 +43,50 @@ const EDITOR_JS_TOOLS = {
     class: ImageTool,
     config: {
       uploader: {
-        uploadByFile(file:any) {
-          return new Promise((resolve) => {
-            const formData = new FormData();
-            formData.append("file", file);
+        uploadByFile: async (file: any) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", CLOUDINARYPRESET);
 
-            setTimeout(() => {
-              resolve({
-                success: 1,
-                file: {
-                  url: "https://via.placeholder.com/800", // Replace with actual upload logic
-                },
-              });
-            }, 1000);
-          });
+          try {
+            const response = await fetch(
+              `https://api.cloudinary.com/v1_1/${CLOUDINARYNAME}/upload`,
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
+
+            const data = await response.json();
+            if (data.error) {
+              return {
+                success: 0,
+                message: "Image upload failed",
+              };
+            }
+
+            console.log("Cloudinary Response:", data);
+
+            return {
+              success: 1,
+              file: {
+                url: data.secure_url, // Correct URL field for secure Cloudinary links
+              },
+            };
+          } catch (error) {
+            console.error("Error uploading image:", error);
+            return {
+              success: 0,
+              message: "An error occurred while uploading the image",
+            };
+          }
         },
       },
     },
   },
 };
 
-const calculateReadTime = (text) => {
+const calculateReadTime = (text: string) => {
   const words = text.split(/\s+/).filter(Boolean).length;
   const readTime = Math.ceil(words / 200); // Average reading speed: 200 words per minute
   return { words, readTime };
@@ -88,7 +114,9 @@ const Editor: React.FC<EditorProps> = ({ data, onChange, editorblock }) => {
           onChange(content);
 
           const text = content.blocks
-            .filter((block) => block.type === "paragraph" || block.type === "header")
+            .filter(
+              (block) => block.type === "paragraph" || block.type === "header"
+            )
             .map((block) => block.data.text || "")
             .join(" ");
 
@@ -113,7 +141,9 @@ const Editor: React.FC<EditorProps> = ({ data, onChange, editorblock }) => {
       {/* Header Section */}
       <div className="editor-header">
         <h2 className="editor-title">Write Your Story</h2>
-        <p className="editor-subtitle">Share your thoughts and ideas with the world.</p>
+        <p className="editor-subtitle">
+          Share your thoughts and ideas with the world.
+        </p>
       </div>
 
       {/* Word Count and Read Time */}
@@ -133,7 +163,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange, editorblock }) => {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           max-width: 700px;
           margin: 40px auto;
-          font-family: 'Georgia', serif;
+          font-family: "Georgia", serif;
           color: #333;
         }
         .editor-header {
