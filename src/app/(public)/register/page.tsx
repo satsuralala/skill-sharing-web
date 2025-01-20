@@ -19,18 +19,10 @@ const Register = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
-<<<<<<< HEAD
   const [register,{loading}] = useMutation(REGISTER, {
     onCompleted:async(data)=>{
       localStorage.setItem('token',data.register.token);
       window.location.href = '/signIn'
-=======
-  const [register, { loading }] = useMutation(REGISTER, {
-    onCompleted: async (data) => {
-      console.log({ data });
-      localStorage.setItem("token", data.register.token);
-      window.location.href = "/signIn";
->>>>>>> f4ce05c0de11b02f9f0a5808ace4cb0c352b84ba
     },
     variables: {
       name: name,
