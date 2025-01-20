@@ -23,7 +23,7 @@ const SignIn=()=> {
 
   const [SignIn,{loading}] = useMutation(SIGN_IN, {
     onCompleted:async(data)=>{
-      localStorage.setItem('token',data.token);
+      localStorage.setItem('token',data.SignIn.token);
       window.location.href = '/'
     },
     variables: {

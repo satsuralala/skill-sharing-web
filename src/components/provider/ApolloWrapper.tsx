@@ -8,7 +8,7 @@ import { setContext } from '@apollo/client/link/context';
 
 interface ApolloWrapperProps {
   children: ReactNode;
-  authToken: string;
+
 }
 
 

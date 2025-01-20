@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import './global.css';
 import { ApolloWrapper } from '@/components/provider/ApolloWrapper';
+import { Toaster } from 'sonner';
 
 
 
@@ -17,7 +18,9 @@ const RootLayout = async ({ children }: PropsWithChildren) => {
     <html lang="en">
       <body className="bg-white">
         <ApolloWrapper>
+          
           {children}
+          <Toaster />
         </ApolloWrapper>
       </body>
     </html>

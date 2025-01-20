@@ -5,18 +5,17 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     email: String!
-    role: String!
+    role: String
     reputation: Int
-    createdAt: Date!
-    updatedAt: Date!
-    otpCreatedAt: Date!
+    createdAt: Date
+    updatedAt: Date
   }
 
   type responseWithToken {
     token: String!
   }
   type Query {
-    users: [User]
+    getAllUsers:[User!]!
   }
 
   type Mutation {

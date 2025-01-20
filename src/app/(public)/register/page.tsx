@@ -22,7 +22,7 @@ const Register=()=> {
 
   const [register,{loading}] = useMutation(REGISTER, {
     onCompleted:async(data)=>{
-      localStorage.setItem('token',data.token);
+      localStorage.setItem('token',data.register.token);
       window.location.href = '/signIn'
     },
     variables: {

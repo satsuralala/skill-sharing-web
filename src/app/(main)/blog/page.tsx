@@ -1,38 +1,11 @@
-'use client'
-import React, { useState } from "react";
-
-import Editor from "@/components/editor";
+import BlogEditor from "@/components/editor";
 
 
-// Initial Data
-const INITIAL_DATA = {
-  time: new Date().getTime(),
-  blocks: [
-    {
-      type: "header",
-      data: {
-        text: "This is my awesome editor!",
-        level: 1,
-      },
-    },
-  ],
-};
-
-function App() {
-  const [data, setData] = useState(INITIAL_DATA);
+const EditorPage = () => {
   return (
-    <div className="editor">
-      <Editor data={data} onChange={setData} editorblock="editorjs-container" />
-      <button
-        className="savebtn"
-        onClick={() => {
-          alert(JSON.stringify(data));
-        }}
-      >
-        Save
-      </button>
+    <div>
+      <BlogEditor/>
     </div>
   );
-}
-
-export default App;
+};
+export default EditorPage

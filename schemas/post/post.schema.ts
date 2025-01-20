@@ -5,26 +5,31 @@ export const typeDefs = gql`
     id: ID!
     title: String!
     content: String!
-    author: User!
+    authorName: String!
     status: String!
+    words:Int
+    readIn:Int
     likes: Int
-    views: Int!
+    views: Int
     comments:[String]
-    reputationPoints: Int!
+    reputationPoints: Int
+    images:[String]
     createdAt: String!
-    updatedAt: String!
+    updatedAt: String
+    
   }
 
   type Query {
     getPost(id: ID!): Post
-    getAllPosts(status: String): [Post]
+    getAllPosts(userId:String):[Post]
   }
 
   type Mutation {
-    createPost(title: String!, content: String!,userId:String!): Post!
+    createPost(title: String!, content: String!,userId:String!,words:Int!,readIn:Int!,images:[String]):String
+    saveDraft(title: String!, content: String!,userId:String!,words:Int!,readIn:Int!,images:[String]):String
     updatePost(id: ID!, title: String, content: String,userId:String!): Post!
-    submitPost(id: ID!, title: String, content: String,userId:String!): Post!
-    approvePost(id: ID!,userId:String!): Post!
+    approvePost(id: ID!,userId:String!): String!
+    declinePost(id: ID!,userId:String!): String!
     likePost(id: ID!,userId:String!): Post!
     increaseViewCount(id: ID!,userId:String!): Post!
   }
