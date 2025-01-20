@@ -1,7 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Layout,
   FileText,
   Users,
   DollarSign,
@@ -19,23 +18,13 @@ import {
   Clock,
 } from "lucide-react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/shadcn/Dialog";
-import { Input } from "@/components/shadcn/input";
-import { Label } from "@/components/shadcn/label";
-import { Button } from "@/components/shadcn/button";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
+  const [posts, setPosts] = useState([]);
 
   const GET_All_POSTS = gql`
     query GetAllPosts($userId: String) {
@@ -50,7 +39,6 @@ const AdminDashboard = () => {
         likes
         views
         comments
-        reputationPoints
         images
         createdAt
       }
@@ -63,8 +51,14 @@ const AdminDashboard = () => {
     },
   });
 
+  useEffect(() => {
+    if (data && data.getAllPosts) {
+      setPosts(data.getAllPosts);
+    }
+  }, [posts]);
+
   const ApprovePost = gql`
-    mutation approvePost($approvePostId: ID!, $userId: String!) {
+    mutation approvePost($approvePostId: String!, $userId: String!) {
       approvePost(id: $approvePostId, userId: $userId)
     }
   `;
@@ -90,7 +84,7 @@ const AdminDashboard = () => {
     }
   };
   const DECLINE = gql`
-    mutation declinePost($declinePostId: ID!, $userId: String!) {
+    mutation declinePost($declinePostId: String!, $userId: String!) {
       declinePost(id: $declinePostId, userId: $userId)
     }
   `;
@@ -232,65 +226,86 @@ const AdminDashboard = () => {
 
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                 <div className="grid grid-cols-1 gap-4 p-4">
-                  {data.getAllPosts.map((post: any) => (
-                    <div
-                      key={post.id}
-                      className="border border-gray-200 rounded-lg p-4"
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2 text-gray-700">
-                            {post.title}
-                          </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span>Author: {post.authorName}</span>
-                            <span>•</span>
-                            <span>{post.words} words</span>
-                            <span>•</span>
-                            <div className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {post.readIn}min
+                  <div className="grid grid-cols-1 gap-4 p-4">
+                    {data.getAllPosts.length > 0 ? (
+                      data.getAllPosts.map((post: any) => (
+                        <div
+                          key={post.id}
+                          className="border border-gray-200 rounded-lg p-4"
+                        >
+                          <Link
+                            href={`/requestedBlogs/${post.id}`}
+                            key={post.id}
+                          >
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h3 className="text-lg font-semibold mb-2 text-gray-700">
+                                  {post.title}
+                                </h3>
+                                <div className="flex items-center gap-4 text-sm text-gray-500">
+                                  <span>Author: {post.authorName}</span>
+                                  <span>•</span>
+                                  <span>{post.words} words</span>
+                                  <span>•</span>
+                                  <div className="flex items-center">
+                                    <Clock className="w-4 h-4 mr-1" />
+                                    {post.readIn}min
+                                  </div>
+                                </div>
+                              </div>
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm ${
+                                  post.status === "pending"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : post.status === "approved"
+                                    ? "bg-green-100 text-green-800"
+                                    : post.status === "declined"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
+                                {post.status}
+                              </span>
+                            </div>
+                          </Link>
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-6 text-sm text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Eye className="w-4 h-4" />
+                                {post.views}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <ThumbsUp className="w-4 h-4" />
+                                {post.likes}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <MessageSquare className="w-4 h-4" />
+                                {post.comments.length}
+                              </div>
+                            </div>
+                            <div className="flex gap-2  mt-5">
+                              <button
+                                className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-800"
+                                onClick={() => handlePublishPost(post.id)}
+                              >
+                                Publish
+                              </button>
+                              <button
+                                className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-300"
+                                onClick={() => handleDeclinePost(post.id)}
+                              >
+                                Decline
+                              </button>
                             </div>
                           </div>
                         </div>
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-                          {post.status}
-                        </span>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No requests to publish at this moment.</p>
                       </div>
-
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-6 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-4 h-4" />
-                            {post.views}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <ThumbsUp className="w-4 h-4" />
-                            {post.likes}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MessageSquare className="w-4 h-4" />
-                            {post.comments.length}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <button
-                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
-                            onClick={() => handlePublishPost(post.id)}
-                          >
-                            Publish
-                          </button>
-                          <button
-                            className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50"
-                            onClick={() => handleDeclinePost(post.id)}
-                          >
-                            Decline
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,12 +1,14 @@
 import { GraphQLError } from "graphql";
 import { userModel } from "../../../models/all/user.model";
 import { postModel } from "../../../models/all/post.model";
+import mongoose from "mongoose";
 
 
-export const getAllPosts= async (_: any, {userId}:{userId:string}) => {
+export const getPost= async (_: any, {userId,id}:{userId:string,id:string}) => {
   const user=await userModel.findById(userId);
-  if(user.role==='admin'){
-    const post = await postModel.find({})
+
+  if(user){
+    const post = await postModel.findById(id)
     return post
   }else{
     throw new GraphQLError("User must be admin to see the posts");

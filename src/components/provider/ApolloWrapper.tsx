@@ -15,7 +15,7 @@ interface ApolloWrapperProps {
 
 const makeClient = () => {
   const httpLink = new HttpLink({
-    uri: " http://localhost:3000/api/graphql",
+    uri:"http://localhost:3000/api/graphql",
     fetchOptions: { cache: "no-store" },
   });
 
@@ -32,10 +32,6 @@ const makeClient = () => {
   });
 };
 
-export const ApolloWrapper = ({ children }: ApolloWrapperProps) => {
-  return (
-    <ApolloNextAppProvider makeClient={() => makeClient()}>
-      {children}
-    </ApolloNextAppProvider>
-  );
+export const ApolloWrapper = ({ children}: ApolloWrapperProps) => {
+  return <ApolloNextAppProvider makeClient={()=>makeClient()}>{children}</ApolloNextAppProvider>;
 };

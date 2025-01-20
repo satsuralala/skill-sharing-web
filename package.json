@@ -35,6 +35,7 @@
     "button": "^1.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dompurify": "^3.2.3",
     "draft-js": "0.10.5",
     "draft-js-inline-toolbar-plugin": "^3.0.1",
     "draft-js-side-toolbar-plugin": "^3.0.2",
