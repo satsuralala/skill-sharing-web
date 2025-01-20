@@ -11,10 +11,6 @@ import { setContext } from "@apollo/client/link/context";
 
 interface ApolloWrapperProps {
   children: ReactNode;
-<<<<<<< HEAD
-
-=======
->>>>>>> f4ce05c0de11b02f9f0a5808ace4cb0c352b84ba
 }
 
 const makeClient = () => {
