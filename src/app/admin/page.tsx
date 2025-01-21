@@ -20,129 +20,174 @@ import {
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
+import { useUserContext } from "@/components/UserContext";
+import { Button } from "@/components/shadcn/button";
 
+// Move GraphQL operations outside component
+const GET_ALL_POSTS = gql`
+  query GetAllPosts($userId: String) {
+    getAllPosts(userId: $userId) {
+      id
+      title
+      content
+      authorName
+      status
+      words
+      readIn
+      likes
+      views
+      comments
+      images
+      createdAt
+    }
+  }
+`;
+
+const APPROVE_POST = gql`
+  mutation approvePost($approvePostId: String!, $userId: String!) {
+    approvePost(id: $approvePostId, userId: $userId)
+  }
+`;
+
+const DECLINE_POST = gql`
+  mutation declinePost($declinePostId: String!, $userId: String!) {
+    declinePost(id: $declinePostId, userId: $userId)
+  }
+`;
+
+
+// Menu items configuration
+const menuItems= [
+  {
+    icon: <FileText className="w-5 h-5 text-black" />,
+    label: "Articles",
+    value: "posts",
+  },
+  {
+    icon: <Users className="w-5 h-5 text-black" />,
+    label: "Authors",
+    value: "authors",
+  },
+  {
+    icon: <DollarSign className="w-5 h-5 text-black" />,
+    label: "Payments", 
+    value: "payments",
+  },
+  {
+    icon: <Flag className="w-5 h-5 text-black" />,
+    label: "Report",
+    value: "reports",
+  },
+  {
+    icon: <BarChart className="w-5 h-5 text-black" />,
+    label: "Statistics",
+    value: "statistics",
+  },
+  {
+    icon: <Settings className="w-5 h-5 text-black" />,
+    label: "Settings",
+    value: "settings",
+  },
+];
 const AdminDashboard = () => {
+  // Move all hooks to the top
+  const { userId } = useUserContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
-  const [posts, setPosts] = useState([]);
 
-  const GET_All_POSTS = gql`
-    query GetAllPosts($userId: String) {
-      getAllPosts(userId: $userId) {
-        id
-        title
-        content
-        authorName
-        status
-        words
-        readIn
-        likes
-        views
-        comments
-        images
-        createdAt
-      }
+  // Query with proper error handling
+  const { data, loading, error, refetch } = useQuery(GET_ALL_POSTS, {
+    variables: { userId },
+    skip: !userId,
+    onError: (error) => {
+      toast.error(`Error fetching posts: ${error.message}`);
     }
-  `;
-
-  const { data, loading, error, refetch } = useQuery(GET_All_POSTS, {
-    variables: {
-      userId: "678dbbf39c6eb08b9960fb25",
-    },
   });
 
-  useEffect(() => {
-    if (data && data.getAllPosts) {
-      setPosts(data.getAllPosts);
-    }
-  }, [posts]);
-
-  const ApprovePost = gql`
-    mutation approvePost($approvePostId: String!, $userId: String!) {
-      approvePost(id: $approvePostId, userId: $userId)
-    }
-  `;
-
-  const [approvePost] = useMutation(ApprovePost, {
-    onCompleted: async () => {
+  // Setup mutations with proper error handling
+  const [approvePost] = useMutation(APPROVE_POST, {
+    onCompleted: () => {
       toast.success("Post published successfully!");
       refetch();
     },
+    onError: (error) => {
+      toast.error(`Error publishing post: ${error.message}`);
+    }
   });
 
+  const [declinePost] = useMutation(DECLINE_POST, {
+    onCompleted: () => {
+      toast.success("Post declined successfully!");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(`Error declining post: ${error.message}`);
+    }
+  });
+
+  // Handle post actions
   const handlePublishPost = async (postId: string) => {
     try {
       await approvePost({
         variables: {
           approvePostId: postId,
-          userId: "678dbbf39c6eb08b9960fb25",
+          userId: userId,
         },
       });
     } catch (err) {
-      console.log(err);
-      toast.error("Failed to publish post. Please try again.");
+      // Error handling is done in mutation config
+      console.error(err);
     }
   };
-  const DECLINE = gql`
-    mutation declinePost($declinePostId: String!, $userId: String!) {
-      declinePost(id: $declinePostId, userId: $userId)
-    }
-  `;
-  const [declinePost] = useMutation(DECLINE, {
-    onCompleted: async () => {
-      toast.success("Post declined successfully!");
-      refetch();
-    },
-  });
+
   const handleDeclinePost = async (postId: string) => {
     try {
       await declinePost({
         variables: {
           declinePostId: postId,
-          userId: "678dbbf39c6eb08b9960fb25",
+          userId: userId,
         },
       });
     } catch (err) {
-      console.log(err);
-      toast.error("Failed to decline post. Please try again.");
+      // Error handling is done in mutation config
+      console.error(err);
     }
   };
 
-  const menuItems = [
-    {
-      icon: <FileText className="w-5 h-5 text-black" />,
-      label: "Articles",
-      value: "posts",
-    },
-    {
-      icon: <Users className="w-5 h-5 text-black" />,
-      label: "Authors",
-      value: "authors",
-    },
-    {
-      icon: <DollarSign className="w-5 h-5 text-black" />,
-      label: "Payments",
-      value: "payments",
-    },
-    {
-      icon: <Flag className="w-5 h-5 text-black" />,
-      label: "Report",
-      value: "reports",
-    },
-    {
-      icon: <BarChart className="w-5 h-5 text-black" />,
-      label: "Statistics",
-      value: "statistics",
-    },
-    {
-      icon: <Settings className="w-5 h-5 text-black" />,
-      label: "Settings",
-      value: "settings",
-    },
-  ];
+  const handleLogout = () => {
+  
+    localStorage.clear();  
+    toast.success('You have logged out successfully.');
+    setTimeout(() => {
+      
+      window.location.href = '/';  
+    }, 1000);
+  };
+  // Early return if no user
+  if (!userId) {
+    return (
+      <div className="grid h-screen place-content-center bg-white px-4">
+        <div className="text-center">
+          <h1 className="text-9xl font-black text-gray-200">404</h1>
+          <p className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Uh-oh!
+          </p>
+          <p className="mt-4 text-gray-500">We can't find that page.</p>
+          <a
+            href="/"
+            className="mt-6 inline-block rounded bg-indigo-600 px-5 py-3 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring"
+          >
+            Go Back Home
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -193,10 +238,10 @@ const AdminDashboard = () => {
         </nav>
 
         <div className="p-4 border-t border-gray-200">
-          <button className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <Button className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors" onClick={()=>handleLogout()}>
             <LogOut className="w-5 h-5" />
             <span className={!isSidebarOpen ? "hidden" : ""}>Log out</span>
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -233,26 +278,63 @@ const AdminDashboard = () => {
                           key={post.id}
                           className="border border-gray-200 rounded-lg p-4"
                         >
-                          <Link
-                            href={`/requestedBlogs/${post.id}`}
-                            key={post.id}
-                          >
-                            <div className="flex justify-between items-start mb-4">
-                              <div>
-                                <h3 className="text-lg font-semibold mb-2 text-gray-700">
-                                  {post.title}
-                                </h3>
-                                <div className="flex items-center gap-4 text-sm text-gray-500">
-                                  <span>Author: {post.authorName}</span>
-                                  <span>•</span>
-                                  <span>{post.words} words</span>
-                                  <span>•</span>
-                                  <div className="flex items-center">
-                                    <Clock className="w-4 h-4 mr-1" />
-                                    {post.readIn}min
+                          <div className="flex justify-between items-start mb-4">
+                            <Link
+                              href={`/requestedBlogs/${post.id}`}
+                              key={post.id}
+                            >
+                              <div className="flex gap-8">
+                                <div>
+                                  <Image
+                                    src={post.images[0]}
+                                    alt={post.id}
+                                    width={150}
+                                    height={80}
+                                    className={`rounded-3xl  border-2 ${
+                                      post.status === "pending"
+                                        ? "border-yellow-300"
+                                        : post.status === "approved"
+                                        ? "border-green-500"
+                                        : post.status === "declined"
+                                        ? "border-red-400"
+                                        : "border-gray-500"
+                                    }`}
+                                  />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold mb-2 text-gray-700">
+                                    {post.title}
+                                  </h3>
+                                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                                    <span>Author: {post.authorName}</span>
+                                    <span>•</span>
+                                    <span>{post.words} words</span>
+                                    <span>•</span>
+                                    <div className="flex items-center">
+                                      <Clock className="w-4 h-4 mr-1" />
+                                      {post.readIn}min
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-between items-center mt-2">
+                                    <div className="flex items-center gap-6 text-sm text-gray-500">
+                                      <div className="flex items-center gap-1">
+                                        <Eye className="w-4 h-4" />
+                                        {post.views}
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <ThumbsUp className="w-4 h-4" />
+                                        {post.likes}
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <MessageSquare className="w-4 h-4" />
+                                        {post.comments.length}
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
+                            </Link>
+                            <div>
                               <span
                                 className={`px-3 py-1 rounded-full text-sm ${
                                   post.status === "pending"
@@ -266,36 +348,20 @@ const AdminDashboard = () => {
                               >
                                 {post.status}
                               </span>
-                            </div>
-                          </Link>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-6 text-sm text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                {post.views}
+                              <div className="flex gap-2  mt-5">
+                                <button
+                                  className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-800"
+                                  onClick={() => handlePublishPost(post.id)}
+                                >
+                                  Publish
+                                </button>
+                                <button
+                                  className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-300"
+                                  onClick={() => handleDeclinePost(post.id)}
+                                >
+                                  Decline
+                                </button>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <ThumbsUp className="w-4 h-4" />
-                                {post.likes}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <MessageSquare className="w-4 h-4" />
-                                {post.comments.length}
-                              </div>
-                            </div>
-                            <div className="flex gap-2  mt-5">
-                              <button
-                                className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-800"
-                                onClick={() => handlePublishPost(post.id)}
-                              >
-                                Publish
-                              </button>
-                              <button
-                                className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-300"
-                                onClick={() => handleDeclinePost(post.id)}
-                              >
-                                Decline
-                              </button>
                             </div>
                           </div>
                         </div>

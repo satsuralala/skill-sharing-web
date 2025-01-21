@@ -5,6 +5,7 @@ import { gql, useMutation } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import jwt , { JwtPayload } from 'jsonwebtoken';
 
 const REGISTER = gql`
   mutation register($name: String!, $email: String!, $password: String!) {
@@ -21,8 +22,10 @@ const Register = () => {
 
   const [register,{loading}] = useMutation(REGISTER, {
     onCompleted:async(data)=>{
-      localStorage.setItem('token',data.register.token);
-      window.location.href = '/signIn'
+      const decoded = jwt.decode(data.register.token) as JwtPayload | null;
+      const userId = decoded?.userId;
+      localStorage.setItem('userId',userId);
+      window.location.href = '/'
     },
     variables: {
       name: name,

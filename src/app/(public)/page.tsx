@@ -1,15 +1,11 @@
-'use client'
+"use client";
 import React from "react";
-import {
-  Clock,
-  ThumbsUp,
-  MessageSquare,
-  Eye
-} from "lucide-react";
+import { Clock, ThumbsUp, MessageSquare, Eye } from "lucide-react";
 import Header from "@/components/header";
 import { gql, useQuery } from "@apollo/client";
-import DOMPurify from 'dompurify';
 import Link from "next/link";
+import { useUserContext } from "@/components/UserContext";
+import { toast } from "sonner";
 
 interface Tutorial {
   id: number | string;
@@ -56,6 +52,16 @@ const TutorialHome: React.FC = () => {
 
   const { data, loading, error } = useQuery<QueryData>(GET_POSTS);
 
+  const { userId } = useUserContext();
+  const navigateToTutorial = (id: number | string) => {
+    if(!userId){
+        toast.error('Please sign in to read the article.')
+    }else{
+
+      window.location.href = `/blogs/${id}`;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -64,7 +70,10 @@ const TutorialHome: React.FC = () => {
           <div className="animate-pulse">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((n) => (
-                <div key={n} className="bg-white rounded-lg overflow-hidden shadow-sm">
+                <div
+                  key={n}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm"
+                >
                   <div className="w-full h-48 bg-gray-200" />
                   <div className="p-4">
                     <div className="h-6 bg-gray-200 rounded mb-4" />
@@ -88,7 +97,9 @@ const TutorialHome: React.FC = () => {
         <Header />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Tutorials</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Error Loading Tutorials
+            </h2>
             <p className="text-gray-600">{error.message}</p>
           </div>
         </main>
@@ -104,10 +115,10 @@ const TutorialHome: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayTutorials.map((tutorial) => (
-        <Link href={`/blogs/${tutorial.id}`} key={tutorial.id}>
-            <article
+            <div
               key={tutorial.id}
-              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              onClick={() => navigateToTutorial(tutorial.id)}
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
             >
               {/* Image */}
               <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
@@ -124,7 +135,7 @@ const TutorialHome: React.FC = () => {
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 )}
-                
+
                 {/* Reading time overlay */}
                 <div className="absolute top-3 right-3 bg-black/70 text-white text-sm px-2 py-1 rounded-full flex items-center">
                   <Clock className="w-3 h-3 mr-1" />
@@ -141,8 +152,10 @@ const TutorialHome: React.FC = () => {
 
                 {/* Metrics */}
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span className="text-gray-700">By {tutorial.authorName}</span>
-                  
+                  <span className="text-gray-700">
+                    By {tutorial.authorName}
+                  </span>
+
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center">
                       <ThumbsUp className="w-4 h-4 mr-1 text-blue-500" />
@@ -159,11 +172,9 @@ const TutorialHome: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </article>
-          </Link>
+            </div>
           ))}
         </div>
-        
       </main>
     </div>
   );

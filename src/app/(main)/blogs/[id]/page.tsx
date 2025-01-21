@@ -12,8 +12,14 @@ import Header from "@/components/header";
 import { gql, useQuery } from "@apollo/client";
 import DOMPurify from "dompurify";
 import { useParams } from "next/navigation";
+import { useUserContext } from "@/components/UserContext";
+import { toast } from "sonner";
 
 export default function TutorialDetailPage() {
+  const { userId } = useUserContext();
+  if(!userId){
+      toast.error('Please sign in to read the article.')
+  }
   const params = useParams();
   const id = params.id;
 

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { gql, useMutation } from "@apollo/client";
 import { saveDraft } from "../../resolvers/mutations";
+import { toast } from "sonner";
 
 interface EditorContent {
   title: string;
@@ -235,12 +236,12 @@ const BlogEditor: React.FC = () => {
 
       // Create image container
       const imageContainer = document.createElement("div");
-      imageContainer.className = "image-container relative inline-block group flex jusity-center max-w-[600px] max-h-[400px]";
+      imageContainer.className = "image-container relative inline-block group flex jusity-center mx-auto max-w-[600px] max-h-[400px]";
 
       // Create image element
       const img = document.createElement("img");
       img.src = cloudinaryUrl;
-      img.className = "max-w-full h-auto my-4 rounded-lg mx-auto";
+      img.className = "max-w-full h-auto my-4 rounded-lg mx-auto ";
       img.setAttribute("data-cloudinary-url", cloudinaryUrl);
       img.style.maxWidth = "600px";
       img.style.maxHeight = "500px";
@@ -290,7 +291,7 @@ const BlogEditor: React.FC = () => {
       }
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Failed to upload image");
+      toast.error("Failed to upload image");
     } finally {
       setIsUploading(false); // Hide loader after the upload
     }
@@ -358,7 +359,7 @@ const BlogEditor: React.FC = () => {
 
   const [createPost, { loading: creatingPost }] = useMutation(CREATE_POST, {
     onCompleted: async (data) => {
-      window.location.href = "/home";
+     
     },
   });
   const handlePublish = () => {
@@ -373,7 +374,7 @@ const BlogEditor: React.FC = () => {
       },
     })
       .then(() => {
-        alert("Post published successfully!");
+        toast.success("Post published successfully!");
         setEditorState({
           title: "",
           content: "",
@@ -391,7 +392,7 @@ const BlogEditor: React.FC = () => {
 
   const [saveDraft, { loading: savingDraft }] = useMutation(SAVE_POST, {
     onCompleted: async (data) => {
-      alert("successfully saved the post");
+      toast.success("successfully saved the post");
       window.location.href = "/home";
     },
   });
@@ -407,7 +408,7 @@ const BlogEditor: React.FC = () => {
       },
     })
       .then(() => {
-        alert("Post published successfully!");
+        toast.success("Post saved successfully!");
       })
       .catch((err) => {
         alert(err);
@@ -499,7 +500,7 @@ const BlogEditor: React.FC = () => {
               onInput={handleContentChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              className="min-h-[300px] text-black focus:outline-none prose prose-lg max-w-none flex justify-center px-4 py-2 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&>*]:my-4 "
+              className="min-h-[300px] text-black focus:outline-none prose prose-lg max-w-none  px-4 py-2 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&>*]:my-4 "
               data-placeholder="Tell your story..."
             />
           </div>
@@ -520,7 +521,7 @@ const BlogEditor: React.FC = () => {
                 onClick={handlePublish}
                 disabled={creatingPost}
               >
-                {creatingPost ? "Submit..." : "Submit to publish"}
+                {creatingPost ? "Submitting..." : "Submit to publish"}
               </Button>
               
             </div>
