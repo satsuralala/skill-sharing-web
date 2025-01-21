@@ -149,20 +149,17 @@ const BlogEditor: React.FC = () => {
     }
   };
   const handleImageDelete = (imageUrl: string) => {
-    // Remove the image from state
     setEditorState((prev) => ({
       ...prev,
       images: prev.images.filter((url) => url !== imageUrl),
     }));
 
-    // Remove the image from the editor content
     if (contentRef.current) {
       const imageContainers =
         contentRef.current.querySelectorAll(".image-container");
       imageContainers.forEach((container) => {
         const img = container.querySelector("img");
         if (img?.getAttribute("data-cloudinary-url") === imageUrl) {
-          // Remove the container and any empty paragraph that might have been created after it
           const nextElement = container.nextElementSibling;
           if (
             nextElement?.tagName === "P" &&
@@ -174,7 +171,6 @@ const BlogEditor: React.FC = () => {
         }
       });
 
-      // Trigger content change to update state
       const changeEvent = new Event("input", { bubbles: true });
       contentRef.current.dispatchEvent(changeEvent);
     }
@@ -187,7 +183,6 @@ const BlogEditor: React.FC = () => {
     if (!file) return;
 
     try {
-      // Ensure the editor is focused
       const contentEditableElement = contentRef.current;
       if (
         contentEditableElement &&
@@ -196,10 +191,8 @@ const BlogEditor: React.FC = () => {
         contentEditableElement.focus();
       }
 
-      // Set uploading state
       setIsUploading(true);
 
-      // Ensure there's a valid selection or range
       const selection = window.getSelection();
       if (!selection?.rangeCount) return;
 
@@ -221,24 +214,20 @@ const BlogEditor: React.FC = () => {
         </div>
       `;
 
-      // Insert loading placeholder
       range.deleteContents();
       range.insertNode(loadingPlaceholder);
 
-      // Proceed with image upload
       const cloudinaryUrl = await uploadToCloudinary(file);
 
-      // Update editor state
       setEditorState((prev) => ({
         ...prev,
         images: [...prev.images, cloudinaryUrl],
       }));
 
-      // Create image container
       const imageContainer = document.createElement("div");
-      imageContainer.className = "image-container relative inline-block group flex jusity-center mx-auto max-w-[600px] max-h-[400px]";
+      imageContainer.className =
+        "image-container relative inline-block group flex jusity-center mx-auto max-w-[600px] max-h-[400px]";
 
-      // Create image element
       const img = document.createElement("img");
       img.src = cloudinaryUrl;
       img.className = "max-w-full h-auto my-4 rounded-lg mx-auto ";
@@ -246,7 +235,6 @@ const BlogEditor: React.FC = () => {
       img.style.maxWidth = "600px";
       img.style.maxHeight = "500px";
 
-      // Create delete button with hover effect
       const deleteButton = document.createElement("button");
       deleteButton.className =
         "absolute top-2 right-6 p-1.5 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100";
@@ -261,14 +249,11 @@ const BlogEditor: React.FC = () => {
         handleImageDelete(cloudinaryUrl);
       };
 
-      // Add image and delete button to container
       imageContainer.appendChild(img);
       imageContainer.appendChild(deleteButton);
 
-      // Replace placeholder with the image container
       loadingPlaceholder.replaceWith(imageContainer);
 
-      // Move the cursor to after the image
       const paragraph = document.createElement("p");
       const br = document.createElement("br");
       paragraph.appendChild(br);
@@ -277,14 +262,12 @@ const BlogEditor: React.FC = () => {
         imageContainer.nextSibling
       );
 
-      // Set the cursor after the image
       const newRange = document.createRange();
       newRange.setStart(paragraph, 0);
       newRange.collapse(true);
       selection.removeAllRanges();
       selection.addRange(newRange);
 
-      // Trigger content change
       if (contentEditableElement) {
         const changeEvent = new Event("input", { bubbles: true });
         contentEditableElement.dispatchEvent(changeEvent);
@@ -293,7 +276,7 @@ const BlogEditor: React.FC = () => {
       console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
     } finally {
-      setIsUploading(false); // Hide loader after the upload
+      setIsUploading(false);
     }
   };
 
@@ -359,7 +342,7 @@ const BlogEditor: React.FC = () => {
 
   const [createPost, { loading: creatingPost }] = useMutation(CREATE_POST, {
     onCompleted: async (data) => {
-     
+      window.location.href='/'
     },
   });
   const handlePublish = () => {
@@ -523,7 +506,6 @@ const BlogEditor: React.FC = () => {
               >
                 {creatingPost ? "Submitting..." : "Submit to publish"}
               </Button>
-              
             </div>
           </div>
         </CardContent>
