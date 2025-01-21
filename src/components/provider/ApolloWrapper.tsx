@@ -15,7 +15,7 @@ interface ApolloWrapperProps {
 
 const makeClient = () => {
   const httpLink = new HttpLink({
-    uri:"https://skill-sharing-g8fb299se-satsuralalas-projects.vercel.app/api/graphql",
+    uri:"https://skill-sharing-drab.vercel.app/api/graphql",
     fetchOptions: { cache: "no-store" },
   });
 
