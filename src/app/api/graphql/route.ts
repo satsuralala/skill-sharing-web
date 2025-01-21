@@ -1,3 +1,4 @@
+// src/app/api/graphql/route.ts
 export const dynamic = 'force-dynamic';
 
 import { handler } from '../../../../src/handler';

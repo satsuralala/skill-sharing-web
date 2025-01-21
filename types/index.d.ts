@@ -1,2 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export type Context = {};
+// src/types.ts
+import { NextRequest } from 'next/server';
+
+
+export interface Context {
+  req: NextRequest; 
+}
